@@ -129,7 +129,7 @@ watch(resourceRoot, {
 
     ensureTimers.delete(resourceName);
     console.log('===============================');
-  }, 100);
+  }, 500);
 
   ensureTimers.set(resourceName, restartTimer);
 });
