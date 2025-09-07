@@ -84,19 +84,14 @@ async function restartResource(resourceName: string, shouldRefresh: boolean) {
 
 // original idea and parts of code from
 // credits to https://github.com/loaf-scripts/loaf_watchdog/
-const fileTypesToWatch = new Set(["lua", "js", "css", "html", "json"]);
+const fileTypesToWatch = ["lua", "js", "css", "html", "json"];
 const ensureTimers = new Map<string, NodeJS.Timeout | null>();
 
-watch(resourceRoot, {
+watch(`${resourceRoot}/**/*.{${fileTypesToWatch.join(',')}}`, {
   persistent: true,
-  ignored: ['**/node_modules'],
+  ignored: ['**/node_modules', '**/.git'],
   ignoreInitial: true
 }).on('all', (event: string, path) => {
-  const extension = path.split('.').pop() || '';
-  if (!fileTypesToWatch.has(extension)) {
-    return;
-  }
-
   let parts = path
     .replace(`${resourceRoot}/`.replaceAll('/', sep), '')
     .split(sep)
