@@ -58,12 +58,28 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
   return isFileReferenced;
 };
 
-async function restartResource(resourceName: string) {
+async function restartResource(resourceName: string, shouldRefresh: boolean) {
   StopResource(resourceName)
 
-  setTimeout(() => {
-    StartResource(resourceName)
-  }, 250);
+  const do_start = () => {
+    setTimeout(() => { StartResource(resourceName) }, 250);
+  }
+
+  const has_perm = IsPrincipalAceAllowed(`resource.${currentResourceName}`, "command")
+  if (shouldRefresh && !has_perm) {
+    /// log with scary red color
+    console.log(`^6[dev-watchdog]^7 ^1[ERROR] YOU DONT HAVE PERMISSION TO REFRESH RESOURCES^7`)
+    console.log(`^6[dev-watchdog]^7 ^1[ERROR] PLEASE ADD THE FOLLOWING PERMISSION TO YOUR SERVER CFG^7`)
+    console.log(`^6[dev-watchdog]^7 ^1[ERROR] ^3add_ace resource.${currentResourceName} command allow^7`)
+  }
+
+  if (shouldRefresh && has_perm) {
+    ExecuteCommand('refresh')
+
+    setTimeout(() => { do_start() }, 250);
+  } else {
+    do_start()
+  }
 }
 
 // original idea and parts of code from
@@ -102,14 +118,14 @@ watch(resourceRoot, {
   }
 
   restartTimer = setTimeout(() => {
-    if (parts[1] === 'fxmanifest.lua') {
+    const shouldRefresh = parts[1] === 'fxmanifest.lua';
+    if (shouldRefresh) {
       console.log('^6[dev-watchdog]^7 Refreshing resources & files')
-      ExecuteCommand('refresh')
     }
 
     console.log(`^6[dev-watchdog]^7 Restarting resource ^4${resourceName}^7`)
 
-    restartResource(resourceName);
+    restartResource(resourceName, shouldRefresh);
 
     ensureTimers.delete(resourceName);
     console.log('===============================');
