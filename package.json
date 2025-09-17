@@ -1,6 +1,6 @@
 {
-	"name": "fivem-typescript-boilerplate",
-	"author": "Overextended",
+	"name": "fivem_dev.watchdog",
+	"author": "CENSOR37",
 	"version": "0.0.0",
 	"license": "",
 	"description": "",
@@ -17,9 +17,9 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/overextended/fivem-typescript-boilerplate.git"
+		"url": "https://github.com/CENSOR37/fivem_dev.watchdog.git"
 	},
-	"bugs": "https://github.com/overextended/fivem-typescript-boilerplate/issues",
+	"bugs": "https://github.com/CENSOR37/fivem_dev.watchdog/issues",
 	"devDependencies": {
 		"@citizenfx/client": "latest",
 		"@citizenfx/server": "latest",
