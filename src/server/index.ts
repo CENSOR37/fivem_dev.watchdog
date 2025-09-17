@@ -20,7 +20,11 @@ const serverDataPath = resourcePath.slice(0, resourcePath.lastIndexOf('/resource
 const resourceRoot = `${serverDataPath}/resources`
 
 function shouldRestartResource(changedFilePath: string, resourceName: string): boolean {
-  if (!resourceName) { return false; }
+  if (!resourceName) {
+    console.log(`^6[dev-watchdog]^7 ^6[INFO]^7 Could not determine resource name for changed file ^5${changedFilePath}^7, skipping...`);
+    return false;
+  }
+
   if (resourceName === currentResourceName) { return false; }
 
   changedFilePath = slp(changedFilePath);
@@ -29,6 +33,7 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
   // skip if no fxmanifest.lua
   const fileContent = LoadResourceFile(resourceName, "fxmanifest.lua");
   if (!fileContent) {
+    console.log(`^6[dev-watchdog]^7 ^6[INFO]^7 No fxmanifest.lua found for resource ^4${resourceName}^7, skipping...`);
     return false;
   }
 
@@ -47,11 +52,14 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
   }).map((filePath) => slp(filePath));
 
   if (files.length <= 0) {
+    console.log(`^6[dev-watchdog]^7 ^6[INFO]^7 No files found in fxmanifest for resource ^4${resourceName}^7, skipping...`);
     return false;
   }
 
-  if (files.includes(changedFilePath)) {
+  if (files.includes(changedFilePath) || changedFilePath.includes(`${resourceName}/fxmanifest.lua`)) {
     isFileReferenced = true;
+  } else {
+    console.log(`^6[dev-watchdog]^7 ^6[INFO]^7 Changed file ^5${changedFilePath}^7 is not referenced in fxmanifest for resource ^4${resourceName}^7, skipping...`);
   }
 
   return isFileReferenced;
