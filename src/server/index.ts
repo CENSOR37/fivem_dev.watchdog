@@ -26,11 +26,6 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
   changedFilePath = slp(changedFilePath);
   const resourcePath = slp(GetResourcePath(resourceName));
 
-  // always restart if fxmanifest.lua changed
-  if (changedFilePath.includes(`${resourceName}/fxmanifest.lua`)) {
-    return true;
-  }
-
   // skip if no fxmanifest.lua
   const fileContent = LoadResourceFile(resourceName, "fxmanifest.lua");
   if (!fileContent) {
@@ -50,6 +45,10 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
     absolute: true,
     cwd: resourcePath,
   }).map((filePath) => slp(filePath));
+
+  if (files.length <= 0) {
+    return false;
+  }
 
   if (files.includes(changedFilePath)) {
     isFileReferenced = true;
