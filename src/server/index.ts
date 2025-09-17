@@ -57,6 +57,16 @@ function shouldRestartResource(changedFilePath: string, resourceName: string): b
   return isFileReferenced;
 };
 
+function DisplayPermissionError() {
+  console.log(`^6[dev-watchdog]^7 ^1[ERROR] THIS RESOURCE DONT HAVE PERMISSION TO REFRESH RESOURCES^7`)
+  console.log(`^6[dev-watchdog]^7 ^1[ERROR] PLEASE ADD THE FOLLOWING PERMISSION TO YOUR SERVER CFG^7`)
+  console.log(`^6[dev-watchdog]^7 ^1[ERROR] ^3add_ace resource.${currentResourceName} command allow^7`)
+}
+
+function IsCommandPrincipalAllowed(): boolean {
+  return IsPrincipalAceAllowed(`resource.${currentResourceName}`, "command")
+}
+
 async function restartResource(resourceName: string, shouldRefresh: boolean) {
   StopResource(resourceName)
 
@@ -64,12 +74,10 @@ async function restartResource(resourceName: string, shouldRefresh: boolean) {
     setTimeout(() => { StartResource(resourceName) }, 250);
   }
 
-  const has_perm = IsPrincipalAceAllowed(`resource.${currentResourceName}`, "command")
+  const has_perm = IsCommandPrincipalAllowed();
   if (shouldRefresh && !has_perm) {
     /// log with scary red color
-    console.log(`^6[dev-watchdog]^7 ^1[ERROR] YOU DONT HAVE PERMISSION TO REFRESH RESOURCES^7`)
-    console.log(`^6[dev-watchdog]^7 ^1[ERROR] PLEASE ADD THE FOLLOWING PERMISSION TO YOUR SERVER CFG^7`)
-    console.log(`^6[dev-watchdog]^7 ^1[ERROR] ^3add_ace resource.${currentResourceName} command allow^7`)
+    DisplayPermissionError();
   }
 
   if (shouldRefresh && has_perm) {
@@ -126,4 +134,13 @@ watch(`${resourceRoot}/**/*.{${fileTypesToWatch.join(',')}}`, {
   }, 500);
 
   ensureTimers.set(resourceName, restartTimer);
+});
+
+
+setTimeout(() => {
+  console.log('^6[dev-watchdog]^7 Watchdog started, watching for changes in resources folder');
+
+  if (!IsCommandPrincipalAllowed()) {
+    DisplayPermissionError();
+  }
 });
