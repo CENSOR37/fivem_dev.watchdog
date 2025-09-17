@@ -20,6 +20,11 @@ const serverDataPath = resourcePath.slice(0, resourcePath.lastIndexOf('/resource
 const resourceRoot = `${serverDataPath}/resources`
 
 function shouldRestartResource(changedFilePath: string, resourceName: string): boolean {
+  const resourceState = GetResourceState(resourceName);
+  if (resourceState !== 'started') {
+    return false;
+  }
+
   if (!resourceName) {
     console.log(`^6[dev-watchdog]^7 ^6[INFO]^7 Could not determine resource name for changed file ^5${changedFilePath}^7, skipping...`);
     return false;
